@@ -26,11 +26,17 @@ router.get('/', (req, res, next) => {
 router.get('/:id', validateUserId, (req, res) => {
   // RETURN THE USER OBJECT
   // this needs a middleware to verify user id
+  res.json(req.user)
 });
 
-router.post('/', validateUser, (req, res) => {
+router.post('/', validateUser, (req, res, next) => {
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
+  User.insert({ name: req.name })
+    .then(newUser => {
+      res.status(201).json(newUser)
+    })
+    .catch(next)
 });
 
 router.put('/:id', validateUserId, validateUser, (req, res) => {
@@ -58,7 +64,6 @@ router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
 router.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     message: "something tragic inside posts router happened",
-    message: err.message,
     stack: err.stack,
   })
 })
